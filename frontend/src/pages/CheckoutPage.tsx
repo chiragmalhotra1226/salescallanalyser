@@ -131,7 +131,7 @@ export default function CheckoutPage() {
 
         <form onSubmit={submit} noValidate>
           {field('FULL NAME', 'name',
-            <input className="form-input" type="text" placeholder="e.g. Priya Sharma"
+            <input className="form-input" type="text" placeholder="e.g. John Doe"
               value={form.name} onChange={set('name')} />
           )}
           {field('EMAIL ADDRESS', 'email',
@@ -139,7 +139,7 @@ export default function CheckoutPage() {
               value={form.email} onChange={set('email')} />
           )}
           {field('PHONE NUMBER', 'phone',
-            <input className="form-input" type="tel" placeholder="+91 98765 43210"
+            <input className="form-input" type="tel" placeholder="+1 (129) 555-1234"
               value={form.phone} onChange={set('phone')} />
           )}
           {field('COUNTRY', 'country',

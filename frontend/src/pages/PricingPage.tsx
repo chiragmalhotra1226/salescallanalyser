@@ -1,6 +1,7 @@
 import { useStore } from '../store/appStore'
 import { useReveal } from '../hooks/useReveal'
 import SiteNav from '../components/SiteNav'
+import SiteFooter from '../components/SiteFooter'
 
 const TIERS = [
   {
@@ -149,6 +150,8 @@ export default function PricingPage() {
           </button>
         </div>
       </div>
+
+      <SiteFooter />
     </div>
   )
 }

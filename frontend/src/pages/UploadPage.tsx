@@ -1,20 +1,41 @@
 import { useState, useRef, useCallback } from 'react'
+import type { CSSProperties } from 'react'
 import { useStore } from '../store/appStore'
 import { api } from '../lib/api'
+import SiteNav from '../components/SiteNav'
+import SiteFooter from '../components/SiteFooter'
 
 // While the product is in pre-launch, uploading is gated behind a plan:
-// clicking the drop zone (or dropping files) sends visitors to the pricing
-// page instead of starting an analysis. Set to false to re-enable uploads
-// once the backend is live.
+// clicking the drop zone / browse / analyse (or dropping files) sends
+// visitors to the pricing page instead of starting an analysis.
+// Set to false to re-enable real uploads once the backend is live.
 const REDIRECT_TO_PRICING = true
 
-const ALLOWED = ['.mp3','.wav','.m4a','.mp4','.ogg','.flac','.webm','.aac', ".xlsx", ".csv"]
+const ALLOWED = ['.mp3','.wav','.m4a','.mp4','.ogg','.flac','.webm','.aac', '.xlsx', '.csv']
 const MAX     = 30
+
+const INFO_CARDS = [
+  { icon: '🗂️', title: 'Up to 30 calls per batch', desc: 'Upload a whole week of calls at once — audio files or a sheet of recording links.' },
+  { icon: '⚡', title: '~2 minutes per call',       desc: 'Transcription, speaker detection and full AI analysis run automatically.' },
+  { icon: '🔒', title: 'Private & secure',          desc: 'Your recordings are processed in your own workspace and never shared.' },
+]
+
+const NEXT_STEPS = [
+  { n: '1', label: 'Transcribe', desc: 'ApexVoice AI converts every call to text with timestamps and speakers' },
+  { n: '2', label: 'Analyse',    desc: 'Gemini intelligence scores vitals, objections and buying signals' },
+  { n: '3', label: 'Review',     desc: 'Explore the three-panel HUD with coaching feedback per call' },
+]
 
 function fmt(bytes: number) {
   if (bytes < 1024*1024) return `${(bytes/1024).toFixed(0)} KB`
   return `${(bytes/1024/1024).toFixed(1)} MB`
 }
+
+const orb = (size: number, color: string, top: string, left: string, dur: number): CSSProperties => ({
+  position: 'absolute', width: size, height: size, top, left,
+  borderRadius: '50%', filter: 'blur(70px)', opacity: .4, background: color,
+  animation: `orb-drift ${dur}s ease-in-out infinite`, pointerEvents: 'none',
+})
 
 export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([])
@@ -69,100 +90,153 @@ export default function UploadPage() {
   }
 
   return (
-    <div style={{ height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding: 32, animation:'fade-up .4s ease both' }}>
+    <div style={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>
+      <SiteNav />
 
-      {/* Header */}
-      <div style={{ marginBottom: 32, textAlign:'center' }}>
-        <div style={{ fontFamily:'var(--sans)', fontSize:28, fontWeight:700, color:'var(--text)', letterSpacing:'-.01em' }}>
-        Call Analyser
-        </div>
-        <div style={{ fontSize:11, color:'var(--sec)', marginTop:6, letterSpacing:'.08em' }}>
-          UPLOAD 1–30 CALL RECORDINGS · EDTECH SALES INTELLIGENCE
-        </div>
-      </div>
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* floating orbs */}
+        <div style={orb(300, 'var(--accent)',   '-6%', '4%',  18)} />
+        <div style={orb(240, 'var(--accent-2)', '38%', '76%', 22)} />
 
-      {/* Drop zone */}
-      <div
-        onDragOver={e => { e.preventDefault(); setDragging(true) }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={onDrop}
-        onClick={browse}
-        style={{
-          width: '100%', maxWidth: 600,
-          border: `1.5px dashed ${dragging ? 'var(--blue)' : 'var(--b-mid)'}`,
-          borderRadius: 10,
-          padding: '36px 24px',
-          textAlign: 'center',
-          cursor: 'pointer',
-          background: dragging ? 'var(--blue-d)' : 'var(--surface)',
-          transition: 'all .2s',
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ fontSize:32, marginBottom:12 }}>📁</div>
-        <div style={{ fontFamily:'var(--sans)', fontSize:15, fontWeight:500, marginBottom:6 }}>
-          Drop audio files here or click to browse
-        </div>
-        <div style={{ fontSize:10, color:'var(--sec)', letterSpacing:'.06em' }}>
-          {ALLOWED.join('  ·  ')} · MAX {MAX} FILES
-        </div>
-        <input ref={inputRef} type="file" multiple accept={ALLOWED.join(', ')}
-          style={{ display:'none' }} onChange={e => addFiles(e.target.files)} />
-      </div>
-
-      {/* File list */}
-      {files.length > 0 && (
-        <div style={{ width:'100%', maxWidth:600, marginBottom:16, maxHeight:220, overflowY:'auto' }}>
-          {files.map((f,i) => (
-            <div key={i} style={{
-              display:'flex', alignItems:'center', justifyContent:'space-between',
-              padding:'7px 12px', borderBottom:'1px solid var(--b-sub)',
-              background: i%2===0 ? 'var(--surface)' : 'transparent',
-              borderRadius: 4,
+        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto', padding: '64px 24px 40px', textAlign: 'center' }}>
+          {/* Header */}
+          <div style={{ marginBottom: 40, animation: 'fade-up .5s ease both' }}>
+            <div style={{
+              display: 'inline-block', fontSize: 10, letterSpacing: '.16em', color: 'var(--accent)',
+              border: '1px solid var(--accent-b)', background: 'var(--accent-d)',
+              padding: '5px 14px', borderRadius: 16, marginBottom: 20,
             }}>
-              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                <span style={{ fontSize:9, padding:'2px 6px', borderRadius:3, background:'var(--blue-d)', color:'var(--blue)', border:'1px solid var(--blue-b)' }}>
-                  {f.name.split('.').pop()?.toUpperCase()}
+              STEP 1 OF 3 · UPLOAD
+            </div>
+            <h1 style={{ fontFamily: 'var(--sans)', fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 700, letterSpacing: '-.01em', marginBottom: 12 }}>
+              Upload your <span className="hero-gradient">calls</span>
+            </h1>
+            <p style={{ fontSize: 12.5, color: 'var(--sec)', lineHeight: 1.8, maxWidth: 480, margin: '0 auto' }}>
+              Drop up to {MAX} sales call recordings — or a spreadsheet of recording
+              links — and let the analysis engine take it from there.
+            </p>
+          </div>
+
+          {/* Drop zone */}
+          <div
+            onDragOver={e => { e.preventDefault(); setDragging(true) }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={onDrop}
+            onClick={browse}
+            style={{
+              border: `1.5px dashed ${dragging ? 'var(--accent)' : 'var(--accent-b)'}`,
+              borderRadius: 16,
+              padding: '44px 24px',
+              cursor: 'pointer',
+              background: dragging ? 'var(--accent-d)' : 'var(--surface)',
+              transition: 'all .25s',
+              marginBottom: 18,
+              animation: 'fade-up .5s ease .15s both, zone-pulse 3s ease-in-out infinite',
+            }}
+          >
+            <div style={{ fontSize: 38, marginBottom: 14, animation: 'float-y 3.5s ease-in-out infinite' }}>📁</div>
+            <div style={{ fontFamily: 'var(--sans)', fontSize: 17, fontWeight: 600, marginBottom: 8 }}>
+              Drop files here or click to browse
+            </div>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', marginTop: 14 }}>
+              {ALLOWED.map(ext => (
+                <span key={ext} style={{
+                  fontSize: 9, padding: '3px 9px', borderRadius: 4, letterSpacing: '.06em',
+                  background: 'var(--accent-d)', color: 'var(--accent)', border: '1px solid var(--accent-b)',
+                }}>
+                  {ext.replace('.', '').toUpperCase()}
                 </span>
-                <span style={{ fontSize:11, color:'var(--text)' }}>{f.name}</span>
-              </div>
-              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                <span style={{ fontSize:10, color:'var(--sec)' }}>{fmt(f.size)}</span>
-                <button onClick={e => { e.stopPropagation(); remove(i) }} style={{
-                  background:'none', border:'none', color:'var(--red)',
-                  cursor:'pointer', fontSize:14, padding:'0 2px',
-                }}>×</button>
+              ))}
+            </div>
+            <input ref={inputRef} type="file" multiple accept={ALLOWED.join(', ')}
+              style={{ display:'none' }} onChange={e => addFiles(e.target.files)} />
+          </div>
+
+          {/* File list (used once real uploads are enabled) */}
+          {files.length > 0 && (
+            <div style={{ marginBottom: 16, maxHeight: 220, overflowY: 'auto', textAlign: 'left' }}>
+              {files.map((f,i) => (
+                <div key={i} style={{
+                  display:'flex', alignItems:'center', justifyContent:'space-between',
+                  padding:'7px 12px', borderBottom:'1px solid var(--b-sub)',
+                  background: i%2===0 ? 'var(--surface)' : 'transparent', borderRadius: 4,
+                }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <span style={{ fontSize:9, padding:'2px 6px', borderRadius:3, background:'var(--accent-d)', color:'var(--accent)', border:'1px solid var(--accent-b)' }}>
+                      {f.name.split('.').pop()?.toUpperCase()}
+                    </span>
+                    <span style={{ fontSize:11 }}>{f.name}</span>
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                    <span style={{ fontSize:10, color:'var(--sec)' }}>{fmt(f.size)}</span>
+                    <button onClick={e => { e.stopPropagation(); remove(i) }} style={{
+                      background:'none', border:'none', color:'var(--red)', cursor:'pointer', fontSize:14,
+                    }}>×</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {error && <div style={{ color:'var(--red)', fontSize:11, marginBottom:12 }}>{error}</div>}
+
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', animation: 'fade-up .5s ease .3s both' }}>
+            <button className="btn-accent" style={{ fontSize: 13, padding: '13px 36px' }} onClick={submit} disabled={uploading}>
+              {uploading ? 'Uploading…' : files.length ? `Analyse ${files.length} ${files.length === 1 ? 'Call' : 'Calls'}` : 'Upload Files →'}
+            </button>
+            <button className="btn-ghost" style={{ fontSize: 13, padding: '13px 28px' }} onClick={browse}>
+              Browse Files
+            </button>
+          </div>
+
+          <div style={{ marginTop: 18, fontSize: 10, color: 'var(--mute)', lineHeight: 1.7 }}>
+            Calls are transcribed by ApexVoice AI with automatic speaker detection<br/>
+            Gemini-powered analysis · All results saved to your workspace
+          </div>
+        </div>
+      </div>
+
+      {/* Info cards */}
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '30px 24px 10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 16 }}>
+          {INFO_CARDS.map((c, i) => (
+            <div key={c.title} className="feature-card" style={{ padding: '22px 20px', animation: `fade-up .5s ease ${.35 + i * .12}s both` }}>
+              <div style={{ fontSize: 22, marginBottom: 10, animation: `float-y ${3 + i}s ease-in-out infinite` }}>{c.icon}</div>
+              <div style={{ fontFamily: 'var(--sans)', fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{c.title}</div>
+              <div style={{ fontSize: 11, lineHeight: 1.75, color: 'var(--sec)' }}>{c.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* What happens next */}
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px 70px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 26, animation: 'fade-up .5s ease .5s both' }}>
+          <span style={{ fontSize: 11, letterSpacing: '.14em', color: 'var(--sec)' }}>WHAT HAPPENS AFTER YOU UPLOAD</span>
+        </div>
+        <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {NEXT_STEPS.map((s, i) => (
+            <div key={s.n} style={{
+              flex: '1 1 220px', maxWidth: 280, display: 'flex', gap: 14, alignItems: 'flex-start',
+              border: '1px solid var(--b-sub)', borderRadius: 12, padding: '18px 18px',
+              background: 'var(--surface)', animation: `fade-up .5s ease ${.6 + i * .12}s both`,
+            }}>
+              <span style={{
+                width: 26, height: 26, flexShrink: 0, borderRadius: '50%', display: 'grid', placeItems: 'center',
+                background: 'linear-gradient(120deg, var(--accent), var(--accent-2))',
+                color: 'var(--accent-ink)', fontSize: 12, fontWeight: 700, fontFamily: 'var(--sans)',
+              }}>{s.n}</span>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 600, marginBottom: 5 }}>{s.label}</div>
+                <div style={{ fontSize: 10.5, lineHeight: 1.7, color: 'var(--sec)' }}>{s.desc}</div>
               </div>
             </div>
           ))}
         </div>
-      )}
+      </section>
 
-      {error && (
-        <div style={{ color:'var(--red)', fontSize:11, marginBottom:12, maxWidth:600 }}>{error}</div>
-      )}
-
-      {/* Submit */}
-      <button
-        onClick={submit}
-        disabled={!files.length || uploading}
-        style={{
-          fontFamily:'var(--mono)', fontSize:12, letterSpacing:'.08em',
-          padding:'12px 36px', borderRadius:6,
-          border:`1px solid ${files.length ? 'var(--green-b)' : 'var(--b-sub)'}`,
-          background: files.length ? 'var(--green-d)' : 'transparent',
-          color: files.length ? 'var(--green)' : 'var(--mute)',
-          cursor: files.length && !uploading ? 'pointer' : 'not-allowed',
-          transition:'all .2s',
-        }}
-      >
-        {uploading ? 'Uploading…' : `Analyse ${files.length || ''} ${files.length === 1 ? 'Call' : 'Calls'}`}
-      </button>
-
-      <div style={{ marginTop:16, fontSize:10, color:'var(--mute)', textAlign:'center', lineHeight:1.7, maxWidth:460 }}>
-        Calls are transcribed by ApexVoice AI with automatic speaker detection<br/>
-        Gemini-powered analysis · All results saved to your workspace
-      </div>
+      <SiteFooter />
     </div>
   )
 }

@@ -38,16 +38,44 @@ export interface Plan {
   price: string
 }
 
-// ── Determine initial state from persisted values ─────────────────
+// ── Browser history integration ───────────────────────────────────
+// Each page maps to a URL path so the browser back/forward buttons work
+// (e.g. pricing → back → landing) and deep links like /pricing load directly.
+const PAGE_PATHS: Record<Page, string> = {
+  landing: '/', pricing: '/pricing', checkout: '/checkout',
+  upload: '/upload', processing: '/processing', analysis: '/analysis',
+}
+
+function pageFromPath(path: string): Page {
+  const clean = path.replace(/\/+$/, '') || '/'
+  const hit = (Object.entries(PAGE_PATHS) as [Page, string][]).find(([, v]) => v === clean)
+  return hit ? hit[0] : 'landing'
+}
+
+function syncHistory(p: Page, replace = false) {
+  try {
+    if (window.location.pathname === PAGE_PATHS[p]) return
+    if (replace) window.history.replaceState({ page: p }, '', PAGE_PATHS[p])
+    else         window.history.pushState({ page: p }, '', PAGE_PATHS[p])
+  } catch {}
+}
+
+// ── Determine initial state from persisted values + URL ───────────
 function getInitialState(): { page: Page; result: AnalysisResult | null; currentJob: JobStatus | null } {
-  // A job that was mid-flight when the tab closed resumes on the processing page;
-  // everything else starts on the marketing landing page.
+  const result = loadFromStorage<AnalysisResult>(RESULT_KEY)
+
+  // A job that was mid-flight when the tab closed resumes on the processing page
   const job = loadFromStorage<JobStatus>(JOB_KEY)
   if (job && job.status !== 'done' && job.status !== 'error') {
-    return { page: 'processing', result: null, currentJob: job }
+    return { page: 'processing', result, currentJob: job }
   }
-  const result = loadFromStorage<AnalysisResult>(RESULT_KEY)
-  return { page: 'landing', result, currentJob: null }
+
+  // Deep link: respect the URL path (guard pages that need data)
+  let page = pageFromPath(window.location.pathname)
+  if (page === 'analysis' && !result) page = 'landing'
+  if (page === 'processing') page = 'landing'
+
+  return { page, result, currentJob: null }
 }
 
 function applyThemeToDOM(theme: Theme, accent: Accent) {
@@ -88,7 +116,10 @@ export const useStore = create<AppStore>((set, get) => ({
   theme:           initialTheme,
   accent:          initialAccent,
 
-  setPage: (p) => set({ page: p }),
+  setPage: (p) => {
+    syncHistory(p)
+    set({ page: p })
+  },
 
   setJob: (j) => {
     if (j) saveToStorage(JOB_KEY, j)
@@ -99,6 +130,7 @@ export const useStore = create<AppStore>((set, get) => ({
   setResult: (r) => {
     saveToStorage(RESULT_KEY, r)
     clearStorage(JOB_KEY)
+    syncHistory('analysis')
     set({ result: r, page: 'analysis' })
   },
 
@@ -120,6 +152,14 @@ export const useStore = create<AppStore>((set, get) => ({
 
   clearAll: () => {
     clearStorage(RESULT_KEY, JOB_KEY)
+    syncHistory('landing')
     set({ page: 'landing', currentJob: null, result: null, activeCallIndex: 0 })
   },
 }))
+
+// Normalise the URL on first load, then keep the store in sync when the
+// user presses the browser back / forward buttons.
+syncHistory(initial.page, true)
+window.addEventListener('popstate', () => {
+  useStore.setState({ page: pageFromPath(window.location.pathname) })
+})
