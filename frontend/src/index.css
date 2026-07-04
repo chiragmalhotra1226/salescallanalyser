@@ -446,13 +446,3 @@ button { font-family: var(--mono); }
 }
 .form-input::placeholder { color: var(--mute); }
 
-/* When the OS asks for reduced motion, kill every animation and force all
-   entrance-animated elements (which start at opacity 0) to be visible —
-   otherwise the title and copy never appear. */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation: none !important;
-    transition: none !important;
-  }
-  .reveal { opacity: 1 !important; transform: none !important; }
-}
