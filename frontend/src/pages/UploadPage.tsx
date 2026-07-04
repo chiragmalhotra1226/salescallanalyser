@@ -22,7 +22,7 @@ const INFO_CARDS = [
 
 const NEXT_STEPS = [
   { n: '1', label: 'Transcribe', desc: 'ApexVoice AI converts every call to text with timestamps and speakers' },
-  { n: '2', label: 'Analyse',    desc: 'Gemini intelligence scores vitals, objections and buying signals' },
+  { n: '2', label: 'Analyse',    desc: 'NLP intelligence scores vitals, objections and buying signals' },
   { n: '3', label: 'Review',     desc: 'Explore the three-panel HUD with coaching feedback per call' },
 ]
 
@@ -185,14 +185,11 @@ export default function UploadPage() {
             <button className="btn-accent" style={{ fontSize: 13, padding: '13px 36px' }} onClick={submit} disabled={uploading}>
               {uploading ? 'Uploading…' : files.length ? `Analyse ${files.length} ${files.length === 1 ? 'Call' : 'Calls'}` : 'Upload Files →'}
             </button>
-            <button className="btn-ghost" style={{ fontSize: 13, padding: '13px 28px' }} onClick={browse}>
-              Browse Files
-            </button>
           </div>
 
           <div style={{ marginTop: 18, fontSize: 10, color: 'var(--mute)', lineHeight: 1.7 }}>
             Calls are transcribed by ApexVoice AI with automatic speaker detection<br/>
-            Gemini-powered analysis · All results saved to your workspace
+            NLP-powered analysis · All results saved to your workspace
           </div>
         </div>
       </div>

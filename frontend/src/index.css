@@ -145,6 +145,18 @@ button { font-family: var(--mono); }
   100% { background-position: 0% 50%; }
 }
 
+/* draw an SVG line chart stroke in */
+@keyframes draw-line {
+  from { stroke-dashoffset: 600; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* reflection sweeping across buttons */
+@keyframes btn-shine {
+  0%        { left: -80%; }
+  55%, 100% { left: 140%; }
+}
+
 /* floating background orbs */
 @keyframes orb-drift {
   0%   { transform: translate(0, 0) scale(1); }
@@ -197,7 +209,7 @@ button { font-family: var(--mono); }
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: shine-sweep 1.5s ease-in-out 1.7s 1 both;
+  animation: shine-sweep 4.5s ease-in-out 1.7s 1 both;
   pointer-events: none;
   user-select: none;
 }
@@ -237,7 +249,13 @@ button { font-family: var(--mono); }
   display: inline-block;
   animation: letter-pop .7s cubic-bezier(.2,.9,.3,1.2) both;
 }
+/* gradient applied per letter (iOS-safe) — combine pop + shimmer */
+.hero-letter.hero-gradient {
+  animation: letter-pop .7s cubic-bezier(.2,.9,.3,1.2) both,
+             shimmer 5s ease infinite;
+}
 .hero-gradient {
+  color: var(--accent); /* fallback if background-clip:text is unavailable */
   background: linear-gradient(100deg, var(--accent), var(--accent-2), var(--accent));
   background-size: 220% 220%;
   -webkit-background-clip: text;
@@ -285,6 +303,8 @@ button { font-family: var(--mono); }
 
 .btn-accent {
   display: inline-block;
+  position: relative;
+  overflow: hidden;
   font-family: var(--mono);
   letter-spacing: .06em;
   border-radius: 8px;
@@ -301,6 +321,8 @@ button { font-family: var(--mono); }
   filter: brightness(1.06);
 }
 .btn-ghost {
+  position: relative;
+  overflow: hidden;
   font-family: var(--mono);
   letter-spacing: .06em;
   border-radius: 8px;
@@ -314,6 +336,86 @@ button { font-family: var(--mono); }
   border-color: var(--accent-b);
   background: var(--accent-d);
   transform: translateY(-2px);
+}
+
+/* recurring reflection sweep across accent + ghost buttons */
+.btn-accent::after, .btn-ghost::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 36%;
+  left: -80%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,.5), transparent);
+  transform: skewX(-20deg);
+  animation: btn-shine 4.5s ease-in-out 2.2s infinite;
+  pointer-events: none;
+}
+
+/* ── responsive sticky nav ─────────────────────────────────────── */
+.site-nav {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px 18px;
+  padding: 14px 28px;
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--b-sub);
+}
+.nav-controls {
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+@media (max-width: 680px) {
+  .site-nav { padding: 10px 14px; }
+  .nav-controls { gap: 12px; width: 100%; justify-content: space-between; }
+  .swatch { width: 16px; height: 16px; }
+}
+
+/* ── dashboard mock: 3 columns → stacked on phones ─────────────── */
+.mock-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1.3fr;
+  min-height: 250px;
+}
+.mock-col { padding: 16px; border-right: 1px solid var(--b-sub); }
+.mock-col:last-child { border-right: none; }
+@media (max-width: 760px) {
+  .mock-grid { grid-template-columns: 1fr; }
+  .mock-col { border-right: none; border-bottom: 1px solid var(--b-sub); }
+  .mock-col:last-child { border-bottom: none; }
+}
+
+/* subtle grid lines behind the hero */
+.hero-grid {
+  position: absolute; inset: 0; pointer-events: none; opacity: .55;
+  background-image:
+    linear-gradient(var(--b-sub) 1px, transparent 1px),
+    linear-gradient(90deg, var(--b-sub) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 38%, black, transparent 72%);
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 38%, black, transparent 72%);
+}
+
+.industry-chip {
+  font-size: 10px; letter-spacing: .1em;
+  padding: 6px 14px; border-radius: 16px;
+  border: 1px solid var(--b-mid); color: var(--sec);
+  background: var(--surface);
+  transition: all .25s;
+  cursor: default;
+}
+.industry-chip:hover {
+  border-color: var(--accent-b);
+  color: var(--accent);
+  background: var(--accent-d);
+  transform: translateY(-2px);
+}
+
+/* mobile spacing tune-ups */
+@media (max-width: 680px) {
+  .hero-header { padding: 56px 18px 50px !important; }
+  .section-pad { padding-left: 18px !important; padding-right: 18px !important; }
 }
 
 /* accent colour swatches */
@@ -344,7 +446,13 @@ button { font-family: var(--mono); }
 }
 .form-input::placeholder { color: var(--mute); }
 
+/* When the OS asks for reduced motion, kill every animation and force all
+   entrance-animated elements (which start at opacity 0) to be visible —
+   otherwise the title and copy never appear. */
 @media (prefers-reduced-motion: reduce) {
-  .hero-letter, .hero-gradient { animation: none; }
-  .reveal { opacity: 1; transform: none; transition: none; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
 }

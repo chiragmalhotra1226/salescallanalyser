@@ -10,17 +10,17 @@ const TITLE = 'Call Analyser'
 const CURRENT_FEATURES = [
   { icon: '📤', title: 'Batch Call Upload',          desc: 'Analyse up to 30 sales call recordings in one go — drop a sheet of call links or audio files and let the engine run.' },
   { icon: '🎙️', title: 'ApexVoice AI Transcription', desc: 'Every call is transcribed with timestamps and automatic speaker detection, so you always know who said what, and when.' },
-  { icon: '🧠', title: 'AI Call Intelligence',        desc: 'Gemini-powered analysis turns raw conversations into executive summaries, call narratives and parent-intent readouts.' },
-  { icon: '📊', title: 'Call Vitals Dashboard',       desc: 'Interest level, anxiety, urgency, price sensitivity, talk ratio, WPM, objection counts — every call scored 0–100 at a glance.' },
+  { icon: '🧠', title: 'AI Call Intelligence',        desc: 'NLP-powered analysis turns raw conversations into executive summaries, call narratives and customer-intent readouts.' },
+  { icon: '📊', title: 'Call Vitals Dashboard',       desc: 'Interest level, sentiment, urgency, price sensitivity, talk ratio, WPM, objection counts — every call scored 0–100 at a glance.' },
   { icon: '🚩', title: 'Objection & Signal Detection', desc: 'Automatically surfaces objections, buying signals and emphasis points so your team knows exactly what to address next.' },
   { icon: '📜', title: 'Transcript Explorer',         desc: 'A full three-panel HUD to read every transcript side-by-side with its metrics, keywords and coaching feedback.' },
-  { icon: '💗', title: 'Sentiment Timeline',          desc: 'Watch parent anxiety and emotion shift across every phase of the call — opening, discovery, pricing, closing — and see exactly where the mood turned.' },
-  { icon: '⚖️', title: 'Talk-Ratio Coaching',         desc: 'Agent vs parent talk time, words-per-minute pacing and question counts on every call — instant nudges when reps talk too much and listen too little.' },
+  { icon: '💗', title: 'Sentiment Timeline',          desc: 'Watch customer sentiment shift across every phase of the call — opening, discovery, pricing, closing — and see exactly where the mood turned.' },
+  { icon: '⚖️', title: 'Talk-Ratio Coaching',         desc: 'Agent vs customer talk time, words-per-minute pacing and question counts on every call — instant nudges when reps talk too much and listen too little.' },
   { icon: '🎯', title: 'Salesperson Feedback',        desc: 'Every call generates call-by-call strengths, mistakes and better-phrasing suggestions for the rep — coaching notes that write themselves.' },
 ]
 
 const UPCOMING_FEATURES = [
-  { icon: '✉️', title: 'AI Follow-Up Emails',    desc: 'One click turns a finished call into a ready-to-send, personalised follow-up email for the parent.' },
+  { icon: '✉️', title: 'AI Follow-Up Emails',    desc: 'One click turns a finished call into a ready-to-send, personalised follow-up email for the prospect.' },
   { icon: '🔗', title: 'CRM Sync',               desc: 'Push scores, summaries and next steps straight into HubSpot or Salesforce — no copy-paste.' },
   { icon: '🏆', title: 'Team Leaderboards',      desc: 'Rank reps by conversion score, objection handling and coaching progress across the whole team.' },
   { icon: '🌐', title: 'Multilingual Calls',     desc: 'Transcribe and analyse calls in Hindi, Spanish, Arabic and 40+ more languages.' },
@@ -40,8 +40,10 @@ const STEPS = [
 const TICKER = [
   'SENTIMENT TIMELINE', 'TALK RATIO', 'OBJECTION DETECTION', 'CALL VITALS',
   'AGENT FEEDBACK', 'TRANSCRIPTS', 'KEYWORD FREQUENCY', 'CONVERSION SCORE',
-  'PARENT INTENT', 'ACTION PLANS',
+  'CUSTOMER INTENT', 'ACTION PLANS',
 ]
+
+const INDUSTRIES = ['EDTECH', 'SAAS', 'REAL ESTATE', 'INSURANCE', 'RECRUITING', 'D2C', 'FINANCE']
 
 const STATS = [
   { to: 30,  suffix: '',    label: 'calls per batch' },
@@ -96,9 +98,9 @@ function DashboardMock() {
   )
   const chartBars = [82, 58, 44, 40, 38, 62, 35, 30, 28, 24]
   const lines = [
-    ['1', 'Hello, this is Kanish from BetterMind Labs.'],
+    ['1', 'Hello, this is Christina from BetterMind Labs.'],
     ['2', "Yes, we received the request for Nandini."],
-    ['1', 'Why did I put wrong information?'],
+    ['1', 'Nandini opted for the AI + Healthcare track?'],
     ['2', 'The AI + Healthcare track fits her interests.'],
     ['2', 'We can flexibly schedule around July 6th.'],
   ]
@@ -113,16 +115,16 @@ function DashboardMock() {
         {['var(--red)', 'var(--amber)', 'var(--green)'].map(c => (
           <span key={c} style={{ width: 9, height: 9, borderRadius: '50%', background: c, opacity: .8 }} />
         ))}
-        <span style={{ marginLeft: 10, fontSize: 9, letterSpacing: '.12em', color: 'var(--sec)' }}>EDTECH CALL ANALYSER · 1 CALL ANALYSED</span>
+        <span style={{ marginLeft: 10, fontSize: 9, letterSpacing: '.12em', color: 'var(--sec)' }}>SALES CALL ANALYSER · 1 CALL ANALYSED</span>
         <span style={{ marginLeft: 'auto', fontSize: 8, padding: '2px 8px', borderRadius: 3, color: 'var(--accent)', background: 'var(--accent-d)', border: '1px solid var(--accent-b)' }}>Consideration</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr 1.3fr', gap: 0, minHeight: 250 }}>
+      <div className="mock-grid">
         {/* Vitals */}
-        <div style={{ padding: 16, borderRight: '1px solid var(--b-sub)' }}>
+        <div className="mock-col">
           <div style={{ fontSize: 8.5, letterSpacing: '.12em', color: 'var(--mute)', marginBottom: 12 }}>1. VITALS</div>
           {bar('INTEREST LEVEL', 90, 'var(--green)', .2)}
-          {bar('PARENT ANXIETY', 34, 'var(--red)', .35)}
+          {bar('CUSTOMER ANXIETY', 34, 'var(--red)', .35)}
           {bar('TECH CURIOSITY', 85, 'var(--blue)', .5)}
           {bar('URGENCY', 70, 'var(--amber)', .65)}
           {bar('PRICE SENSITIVITY', 30, 'var(--purple)', .8)}
@@ -137,7 +139,7 @@ function DashboardMock() {
         </div>
 
         {/* Intelligence / chart */}
-        <div style={{ padding: 16, borderRight: '1px solid var(--b-sub)' }}>
+        <div className="mock-col">
           <div style={{ fontSize: 8.5, letterSpacing: '.12em', color: 'var(--mute)', marginBottom: 12 }}>2. INTELLIGENCE</div>
           <div style={{ fontSize: 8.5, color: 'var(--sec)', marginBottom: 8 }}>KEYWORD FREQUENCY</div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 74, marginBottom: 16 }}>
@@ -152,16 +154,16 @@ function DashboardMock() {
           </div>
           <div style={{ border: '1px solid var(--green-b)', background: 'var(--green-d)', borderRadius: 6, padding: '8px 10px', marginBottom: 8 }}>
             <div style={{ fontSize: 8, color: 'var(--green)', letterSpacing: '.08em', marginBottom: 3 }}>✓ STRENGTH</div>
-            <div style={{ fontSize: 8.5, lineHeight: 1.6, color: 'var(--sec)' }}>Agent guided the parent to live student projects, making the program tangible.</div>
+            <div style={{ fontSize: 8.5, lineHeight: 1.6, color: 'var(--sec)' }}>Agent guided the customer to live product demos, making the value tangible.</div>
           </div>
           <div style={{ border: '1px solid var(--red-b)', background: 'var(--red-d)', borderRadius: 6, padding: '8px 10px' }}>
             <div style={{ fontSize: 8, color: 'var(--red)', letterSpacing: '.08em', marginBottom: 3 }}>✕ MISTAKE</div>
-            <div style={{ fontSize: 8.5, lineHeight: 1.6, color: 'var(--sec)' }}>Framing the error as 'rejected' put the parent on the defensive early.</div>
+            <div style={{ fontSize: 8.5, lineHeight: 1.6, color: 'var(--sec)' }}>Framing the error as 'rejected' put the customer on the defensive early.</div>
           </div>
         </div>
 
         {/* Transcript */}
-        <div style={{ padding: 16 }}>
+        <div className="mock-col">
           <div style={{ fontSize: 8.5, letterSpacing: '.12em', color: 'var(--mute)', marginBottom: 12 }}>3. TRANSCRIPT ENGINE</div>
           {lines.map(([sp, txt], i) => (
             <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 9, animation: `fade-up .5s ease ${.4 + i * .15}s both` }}>
@@ -178,6 +180,82 @@ function DashboardMock() {
   )
 }
 
+/* Deep-dive analytics visuals: sentiment line, talk-ratio donut, pacing tiles */
+function AnalyticsShowcase() {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
+      {/* Sentiment timeline line chart */}
+      <div className="feature-card reveal" style={{ textAlign: 'left' }}>
+        <div style={{ fontSize: 10, letterSpacing: '.12em', color: 'var(--sec)', marginBottom: 16 }}>CUSTOMER SENTIMENT OVER CALL</div>
+        <svg viewBox="0 0 240 100" style={{ width: '100%', height: 'auto', overflow: 'visible' }}>
+          {[0, 25, 50, 75, 100].map(y => (
+            <line key={y} x1="0" y1={y} x2="240" y2={y} stroke="var(--b-sub)" strokeWidth="1" />
+          ))}
+          <polyline
+            fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round"
+            points="0,28 40,36 80,46 120,50 160,60 200,70 240,80"
+            strokeDasharray="600"
+            style={{ animation: 'draw-line 2.4s ease both' }}
+          />
+          {[[0,28],[80,46],[160,60],[240,80]].map(([x,y]) => (
+            <circle key={x} cx={x} cy={y} r="3.5" fill="var(--accent)" />
+          ))}
+        </svg>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 8.5, color: 'var(--mute)', marginTop: 10, letterSpacing: '.06em' }}>
+          <span>OPENING</span><span>DISCOVERY</span><span>PRICING</span><span>CLOSING</span>
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sec)', lineHeight: 1.7, marginTop: 14 }}>
+          Anxiety dropping steadily from open to close — exactly what a great call looks like.
+        </div>
+      </div>
+
+      {/* Talk ratio donut */}
+      <div className="feature-card reveal" style={{ textAlign: 'center', transitionDelay: '.12s' }}>
+        <div style={{ fontSize: 10, letterSpacing: '.12em', color: 'var(--sec)', marginBottom: 18, textAlign: 'left' }}>TALK RATIO</div>
+        <div style={{
+          width: 120, height: 120, borderRadius: '50%', margin: '6px auto 18px',
+          background: 'conic-gradient(var(--accent) 0 51%, var(--blue) 51% 100%)',
+          display: 'grid', placeItems: 'center',
+          animation: 'success-pop .8s cubic-bezier(.2,.9,.3,1.2) both',
+        }}>
+          <div style={{
+            width: 74, height: 74, borderRadius: '50%', background: 'var(--surface)',
+            display: 'grid', placeItems: 'center', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 700,
+          }}>
+            51<span style={{ fontSize: 10, color: 'var(--mute)' }}>/49</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 18, fontSize: 10.5 }}>
+          <span style={{ color: 'var(--sec)' }}><span style={{ color: 'var(--accent)' }}>■</span> Agent 51%</span>
+          <span style={{ color: 'var(--sec)' }}><span style={{ color: 'var(--blue)' }}>■</span> Customer 49%</span>
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sec)', lineHeight: 1.7, marginTop: 14 }}>
+          Balanced conversations close more — we measure it on every call.
+        </div>
+      </div>
+
+      {/* Pacing tiles */}
+      <div className="feature-card reveal" style={{ textAlign: 'left', transitionDelay: '.24s' }}>
+        <div style={{ fontSize: 10, letterSpacing: '.12em', color: 'var(--sec)', marginBottom: 18 }}>PACING & DELIVERY</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {[['150', 'WPM'], ['25', 'QUESTIONS'], ['1', 'OBJECTIONS'], ['9.0', 'CONVERSION']].map(([v, l], i) => (
+            <div key={l} style={{
+              border: '1px solid var(--b-sub)', borderRadius: 10, padding: '14px 14px',
+              background: 'var(--elevated)', animation: `fade-up .5s ease ${.2 + i * .12}s both`,
+            }}>
+              <div style={{ fontFamily: 'var(--sans)', fontSize: 24, fontWeight: 700, color: 'var(--accent)' }}>{v}</div>
+              <div style={{ fontSize: 8.5, letterSpacing: '.12em', color: 'var(--mute)', marginTop: 4 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sec)', lineHeight: 1.7, marginTop: 16 }}>
+          Speed, questions asked and objections faced — benchmarked against your best reps.
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function LandingPage() {
   const { setPage } = useStore()
   const ref = useReveal<HTMLDivElement>()
@@ -187,7 +265,8 @@ export default function LandingPage() {
       <SiteNav />
 
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <header style={{ position: 'relative', padding: '100px 24px 70px', textAlign: 'center', overflow: 'hidden' }}>
+      <header className="hero-header" style={{ position: 'relative', padding: '100px 24px 70px', textAlign: 'center', overflow: 'hidden' }}>
+        <div className="hero-grid" />
         {/* floating orbs */}
         <div style={orb(340, 'var(--accent)',   '-8%',  '6%',  16)} />
         <div style={orb(280, 'var(--accent-2)', '30%',  '72%', 20, 2)} />
@@ -200,23 +279,23 @@ export default function LandingPage() {
             padding: '6px 16px', borderRadius: 20, marginBottom: 28,
             animation: 'fade-up .6s ease both',
           }}>
-            EDTECH SALES INTELLIGENCE · BETTERMIND LABS
+            AI SALES CALL INTELLIGENCE · BETTERMIND LABS
           </div>
 
-          {/* title: zooms in oversized, settles, then a reflection sweeps across */}
+          {/* title: zooms in oversized, settles, then a reflection sweeps across.
+              The gradient is applied per-letter — applying background-clip:text to
+              a parent of animated children renders invisible text on iOS Safari. */}
           <h1 aria-label={TITLE} style={{
             fontFamily: 'var(--sans)', fontWeight: 700,
-            fontSize: 'clamp(44px, 8vw, 92px)', lineHeight: 1.05,
+            fontSize: 'clamp(40px, 8vw, 92px)', lineHeight: 1.05,
             letterSpacing: '-.02em', marginBottom: 26,
           }}>
-            <span className="hero-title-wrap" style={{ position: 'relative' }}>
-              <span className="hero-gradient">
-                {TITLE.split('').map((ch, i) => (
-                  <span key={i} className="hero-letter" style={{ animationDelay: `${.25 + i * .06}s` }}>
-                    {ch === ' ' ? ' ' : ch}
-                  </span>
-                ))}
-              </span>
+            <span className="hero-title-wrap" style={{ position: 'relative', whiteSpace: 'nowrap' }}>
+              {TITLE.split('').map((ch, i) => (
+                <span key={i} className="hero-letter hero-gradient" style={{ animationDelay: `${.25 + i * .06}s, 0s` }}>
+                  {ch === ' ' ? ' ' : ch}
+                </span>
+              ))}
               <span className="hero-shine" aria-hidden="true">{TITLE}</span>
             </span>
           </h1>
@@ -230,14 +309,19 @@ export default function LandingPage() {
             objections, buying signals, coaching feedback and action plans, all in minutes.
           </p>
           <p style={{
-            maxWidth: 560, margin: '0 auto 40px', fontSize: 12, lineHeight: 1.8,
+            maxWidth: 560, margin: '0 auto 26px', fontSize: 12, lineHeight: 1.8,
             color: 'var(--mute)', animation: 'fade-up .7s ease 1.05s both',
           }}>
-            Built for edtech admissions and counselling teams who run hundreds of parent
-            calls a week and can't afford to lose a single insight.
+            Built for every team that sells on calls — if your revenue happens on the
+            phone, Call Analyser turns those conversations into coaching and pipeline.
           </p>
 
-          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', animation: 'fade-up .7s ease 1.2s both' }}>
+          {/* industries */}
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 36, animation: 'fade-up .7s ease 1.15s both' }}>
+            {INDUSTRIES.map(ind => <span key={ind} className="industry-chip">{ind}</span>)}
+          </div>
+
+          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', animation: 'fade-up .7s ease 1.25s both' }}>
             <button className="btn-accent" style={{ fontSize: 13, padding: '14px 34px' }} onClick={() => setPage('upload')}>
               Get Started →
             </button>
@@ -261,7 +345,7 @@ export default function LandingPage() {
       </div>
 
       {/* ── STATS ────────────────────────────────────────────── */}
-      <section style={{ padding: '54px 24px 10px', maxWidth: 900, margin: '0 auto' }}>
+      <section className="section-pad" style={{ padding: '54px 24px 10px', maxWidth: 900, margin: '0 auto' }}>
         <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 18, textAlign: 'center' }}>
           {STATS.map(s => (
             <div key={s.label}>
@@ -275,7 +359,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRODUCT PREVIEW ──────────────────────────────────── */}
-      <section style={{ padding: '60px 24px 30px', maxWidth: 980, margin: '0 auto', textAlign: 'center' }}>
+      <section className="section-pad" style={{ padding: '60px 24px 30px', maxWidth: 980, margin: '0 auto', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 34 }}>
           <h2 style={{ fontFamily: 'var(--sans)', fontSize: 30, fontWeight: 700, marginBottom: 10 }}>
             See it <span className="hero-gradient" style={{ animation: 'none' }}>in action</span>
@@ -287,8 +371,19 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── ANALYTICS SHOWCASE ───────────────────────────────── */}
+      <section className="section-pad" style={{ padding: '50px 24px 30px', maxWidth: 1060, margin: '0 auto' }}>
+        <div className="reveal" style={{ textAlign: 'center', marginBottom: 34 }}>
+          <h2 style={{ fontFamily: 'var(--sans)', fontSize: 30, fontWeight: 700, marginBottom: 10 }}>
+            Analytics that <span className="hero-gradient" style={{ animation: 'none' }}>coach</span>
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--sec)', letterSpacing: '.06em' }}>EVERY CALL BECOMES A CHART YOUR TEAM CAN LEARN FROM</p>
+        </div>
+        <AnalyticsShowcase />
+      </section>
+
       {/* ── HOW IT WORKS ─────────────────────────────────────── */}
-      <section style={{ padding: '60px 24px 70px', maxWidth: 1060, margin: '0 auto' }}>
+      <section className="section-pad" style={{ padding: '60px 24px 70px', maxWidth: 1060, margin: '0 auto' }}>
         <div className="reveal" style={{ textAlign: 'center', marginBottom: 44 }}>
           <h2 style={{ fontFamily: 'var(--sans)', fontSize: 30, fontWeight: 700, marginBottom: 10 }}>
             From raw recordings to <span className="hero-gradient" style={{ animation: 'none' }}>revenue insight</span>
@@ -310,7 +405,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CURRENT FEATURES ─────────────────────────────────── */}
-      <section id="features" style={{ padding: '60px 24px', background: 'var(--surface)', borderTop: '1px solid var(--b-sub)', borderBottom: '1px solid var(--b-sub)' }}>
+      <section id="features" className="section-pad" style={{ padding: '60px 24px', background: 'var(--surface)', borderTop: '1px solid var(--b-sub)', borderBottom: '1px solid var(--b-sub)' }}>
         <div style={{ maxWidth: 1060, margin: '0 auto' }}>
           <div className="reveal" style={{ textAlign: 'center', marginBottom: 44 }}>
             <h2 style={{ fontFamily: 'var(--sans)', fontSize: 30, fontWeight: 700, marginBottom: 10 }}>Everything it does today</h2>
@@ -329,7 +424,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── UPCOMING FEATURES ────────────────────────────────── */}
-      <section id="roadmap" style={{ padding: '60px 24px', maxWidth: 1060, margin: '0 auto' }}>
+      <section id="roadmap" className="section-pad" style={{ padding: '60px 24px', maxWidth: 1060, margin: '0 auto' }}>
         <div className="reveal" style={{ textAlign: 'center', marginBottom: 44 }}>
           <h2 style={{ fontFamily: 'var(--sans)', fontSize: 30, fontWeight: 700, marginBottom: 10 }}>On the roadmap</h2>
           <p style={{ fontSize: 12, color: 'var(--sec)', letterSpacing: '.06em' }}>SHIPPING TO PRO & PREMIUM PLANS FIRST</p>
@@ -351,7 +446,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA BANNER ───────────────────────────────────────── */}
-      <section style={{ padding: '30px 24px 70px' }}>
+      <section className="section-pad" style={{ padding: '30px 24px 70px' }}>
         <div className="reveal" style={{
           maxWidth: 860, margin: '0 auto', textAlign: 'center',
           borderRadius: 22, padding: '54px 30px',

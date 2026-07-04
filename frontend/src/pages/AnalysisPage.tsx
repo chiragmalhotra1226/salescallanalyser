@@ -20,7 +20,7 @@ export default function AnalysisPage() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span style={{ fontFamily:'var(--sans)', fontSize:20, fontWeight:600, letterSpacing:'.04em' }}>
-            EDTECH CALL ANALYSER
+            SALES CALL ANALYSER
           </span>
           <span style={{ fontSize:9, color:'var(--sec)', letterSpacing:'.1em' }}>
             {result.call_count} {result.call_count === 1 ? 'CALL' : 'CALLS'} ANALYSED

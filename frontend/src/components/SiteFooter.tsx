@@ -2,7 +2,15 @@ import { useStore } from '../store/appStore'
 
 /** Full site footer with contact details, shared by the marketing pages. */
 export default function SiteFooter() {
-  const { setPage } = useStore()
+  const { page, setPage } = useStore()
+
+  // Smoothly scroll to a landing-page section from any page: navigate to the
+  // landing page first if needed, then scroll once it has rendered.
+  const goToSection = (id: string) => {
+    const delay = page === 'landing' ? 0 : 350
+    if (page !== 'landing') setPage('landing')
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), delay)
+  }
 
   const col = (title: string, items: React.ReactNode) => (
     <div style={{ minWidth: 150 }}>
@@ -28,24 +36,24 @@ export default function SiteFooter() {
             <span style={{ fontFamily: 'var(--sans)', fontWeight: 700, fontSize: 17 }}>Call Analyser</span>
           </div>
           <p style={{ fontSize: 11.5, lineHeight: 1.8, color: 'var(--sec)' }}>
-            AI-powered sales call intelligence for edtech teams. Transcribe, score
-            and coach every call — automatically.
+            AI-powered sales call intelligence for every team that sells on calls.
+            Transcribe, score and coach every conversation — automatically.
           </p>
           <p style={{ fontSize: 10.5, color: 'var(--mute)', marginTop: 12 }}>
-            Powered by ApexVoice AI & Gemini intelligence
+            Powered by ApexVoice AI & NLP intelligence
           </p>
         </div>
 
         {col('PRODUCT', <>
-          <button className="footer-link" onClick={() => { setPage('landing'); setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 80) }}>Features</button>
-          <button className="footer-link" onClick={() => { setPage('landing'); setTimeout(() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' }), 80) }}>Roadmap</button>
+          <button className="footer-link" onClick={() => goToSection('features')}>Features</button>
+          <button className="footer-link" onClick={() => goToSection('roadmap')}>Roadmap</button>
           <button className="footer-link" onClick={() => setPage('pricing')}>Pricing</button>
           <button className="footer-link" onClick={() => setPage('upload')}>Get Started</button>
         </>)}
 
         {col('COMPANY', <>
           <span className="footer-link" style={{ cursor: 'default' }}>BetterMind Labs</span>
-          <a className="footer-link" href="https://bettermindlabs.com" target="_blank" rel="noreferrer">About Us</a>
+          <a className="footer-link" href="https://www.bettermindlabs.org/" target="_blank" rel="noreferrer">About Us</a>
           <a className="footer-link" href="#" onClick={e => e.preventDefault()}>Careers</a>
           <a className="footer-link" href="#" onClick={e => e.preventDefault()}>Blog</a>
         </>)}

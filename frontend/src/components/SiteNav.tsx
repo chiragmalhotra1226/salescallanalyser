@@ -1,9 +1,9 @@
 import { useStore, ACCENTS } from '../store/appStore'
 
 /**
- * Sticky top navigation shared by the landing / pricing / checkout pages.
- * Holds the logo, page links, the 5-colour accent picker and the
- * dark / light theme toggle.
+ * Sticky top navigation shared by the landing / pricing / checkout / upload
+ * pages. Holds the logo, page links, the 5-colour accent picker and the
+ * dark / light theme toggle. Wraps onto two rows on narrow screens.
  */
 export default function SiteNav() {
   const { page, setPage, theme, setTheme, accent, setAccent } = useStore()
@@ -23,32 +23,24 @@ export default function SiteNav() {
   )
 
   return (
-    <nav style={{
-      position: 'sticky', top: 0, zIndex: 50,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '14px 28px',
-      background: 'color-mix(in srgb, var(--bg) 82%, transparent)',
-      backdropFilter: 'blur(14px)',
-      WebkitBackdropFilter: 'blur(14px)',
-      borderBottom: '1px solid var(--b-sub)',
-    }}>
+    <nav className="site-nav">
       {/* Logo */}
       <button
         onClick={() => setPage('landing')}
         style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}
       >
         <span style={{
-          width: 28, height: 28, borderRadius: 8, display: 'grid', placeItems: 'center',
+          width: 28, height: 28, borderRadius: 8, display: 'grid', placeItems: 'center', flexShrink: 0,
           background: 'linear-gradient(120deg, var(--accent), var(--accent-2))',
           color: 'var(--accent-ink)', fontFamily: 'var(--sans)', fontWeight: 700, fontSize: 15,
         }}>C</span>
-        <span style={{ fontFamily: 'var(--sans)', fontWeight: 700, fontSize: 16, color: 'var(--text)', letterSpacing: '-.01em' }}>
+        <span style={{ fontFamily: 'var(--sans)', fontWeight: 700, fontSize: 16, color: 'var(--text)', letterSpacing: '-.01em', whiteSpace: 'nowrap' }}>
           Call Analyser
         </span>
       </button>
 
       {/* Links + controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
+      <div className="nav-controls">
         {link('HOME', 'landing')}
         {link('PRICING', 'pricing')}
 
@@ -71,7 +63,7 @@ export default function SiteNav() {
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           aria-label="Toggle dark / light theme"
           style={{
-            width: 52, height: 28, borderRadius: 16, position: 'relative',
+            width: 52, height: 28, borderRadius: 16, position: 'relative', flexShrink: 0,
             border: '1px solid var(--b-mid)', background: 'var(--elevated)',
             cursor: 'pointer', transition: 'background .3s',
           }}
