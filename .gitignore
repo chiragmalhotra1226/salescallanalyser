@@ -1,0 +1,25 @@
+# ── Python ────────────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+
+# ── Secrets — never commit API keys ──────────────────────────────
+backend/.env
+.env
+
+# ── Local runtime data (uploads, transcripts, SQLite DB) ─────────
+data/
+
+# ── Node / frontend build output ──────────────────────────────────
+node_modules/
+frontend/dist/
+
+# ── Local-only helper files (kept on disk, not pushed) ────────────
+project_structure.txt
+reset_jobs.py
+scripts/ffmpeg.py
+
+# ── OS / editor noise ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.claude/

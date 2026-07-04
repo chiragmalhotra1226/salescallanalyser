@@ -1,0 +1,42 @@
+# Render Blueprint — deploys both the marketing frontend and the API backend.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  # ── Frontend (static site) ──────────────────────────────────────
+  - type: web
+    name: call-analyser-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      # SPA fallback — all paths serve index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Point the frontend at the deployed backend (leave empty while
+      # the backend is not in use — the site works fully without it).
+      - key: VITE_API_URL
+        value: ""
+
+  # ── Backend (FastAPI) — functional but dormant until you sell ───
+  - type: web
+    name: call-analyser-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GEMINI_API_KEY
+        sync: false          # set in the Render dashboard
+      - key: FIREFLIES_API_KEY
+        sync: false          # set in the Render dashboard
+      - key: PUBLIC_BASE_URL
+        value: ""            # set to this service's URL, e.g. https://call-analyser-api.onrender.com
+      - key: CORS_ORIGINS
+        value: "*"           # tighten to your frontend URL once live
+      - key: DB_PATH
+        value: data/apex.db
+      - key: UPLOAD_DIR
+        value: data/uploads
